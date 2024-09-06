@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Landing Page</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars from appearing */
+            background: #000; /* Fallback background color */
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1; /* Ensure the canvas is behind other content */
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 3em;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+        }
+
+        .hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            z-index: 1;
+            position: relative;
+        }
+
+        .hero h2 {
+            font-size: 2.5em;
+            margin: 0;
+            padding: 0 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            margin-top: 20px;
+            padding: 0 20px;
+        }
+
+        .cta-button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            background-color: #ff5722;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .cta-button:hover {
+            background-color: #e64a19;
+        }
+
+        .moon {
+            width: 400px; /* Increased size of the moon */
+            height: 400px; /* Increased size of the moon */
+            position: absolute;
+            top: 50%;
+            left: 0; /* Position the moon on the left side */
+            transform: translateY(-50%); /* Center the moon vertically */
+            overflow: hidden;
+            border-radius: 50%;
+            box-shadow: 0 0 20px 20px #000 inset, 0 0 20px 2px;
+            z-index: 1; /* Ensure the moon is on top */
+        }
+
+        .moon::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            border-radius: 50%;
+            box-shadow: -40px -40px 50px 2px #000 inset;
+        }
+
+        .moon > div {
+            width: 200%;
+            height: 100%;
+            animation: spin 40s linear alternate infinite;
+            background: url(m1.jpeg) no-repeat center center;
+            background-size: cover;
+        }
+
+        @keyframes spin {
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        .rocket {
+            width: auto;
+            height: 400px; /* Same height as the moon */
+            position: absolute;
+            top: 50%;
+            right: 0; /* Position the rocket on the right side */
+            transform: translateY(-50%); /* Center the rocket vertically */
+            z-index: 1; /* Ensure the rocket is on top */
+        }
+
+        .rocket-container {
+            position: absolute;
+            bottom: 10px; /* Adjust as needed */
+            right: 10px; /* Adjust as needed */
+            height: 400px; /* Same height as the rocket */
+            width: auto;
+        }
+
+        .fire {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #ff4500 0%, #ff6347 70%, transparent 100%);
+            border-radius: 50%;
+            animation: fire 0.5s infinite;
+        }
+
+        .smoke {
+            position: absolute;
+            bottom: 30px; /* Adjust as needed */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(0,0,0,0.3) 100%);
+            border-radius: 50%;
+            animation: smoke 1s infinite;
+        }
+
+        @keyframes fire {
+            0% { transform: translateX(-50%) scaleY(1); opacity: 1; }
+            100% { transform: translateX(-50%) scaleY(0.5); opacity: 0; }
+        }
+
+        @keyframes smoke {
+            0% { transform: translateX(-50%) scale(1); opacity: 1; }
+            100% { transform: translateX(-50%) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Container for the Three.js canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Header section -->
+    <div class="header">
+        <h1>Welcome to Space</h1>
+    </div>
+
+    <!-- Hero section -->
+    <div class="hero">
+        <h2>Explore the Mysteries of the Universe</h2>
+        <p>Join us on an interstellar journey through galaxies and beyond. Discover the wonders of space with our immersive visual experience.</p>
+        <a href="#learn-more" class="cta-button">Learn More</a>
+    </div>
+
+    <!-- Moon element -->
+    <div class="moon">
+        <div></div>
+    </div>
+
+    <!-- Rocket element with fire and smoke -->
+    <div class="rocket-container">
+        <img src="rocket.png" alt="Rocket" class="rocket">
+        <div class="fire"></div>
+        <div class="smoke"></div>
+    </div>
+
+    <!-- Include Three.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Create a starfield
+        const starGeometry = new THREE.BufferGeometry();
+        const starCount = 10000;
+        const positions = new Float32Array(starCount * 3);
+        for (let i = 0; i < starCount; i++) {
+            positions[i * 3] = Math.random() * 2000 - 1000;
+            positions[i * 3 + 1] = Math.random() * 2000 - 1000;
+            positions[i * 3 + 2] = Math.random() * 2000 - 1000;
+        }
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const starMaterial = new THREE.PointsMaterial({ color: 0x888888 });
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
+
+        // Load galaxy texture
+        const textureLoader = new THREE.TextureLoader();
+        const galaxyTexture = textureLoader.load('https://threejs.org/examples/textures/uv_grid_opengl.jpg');
+
+        // Create a galaxy mesh
+        const galaxyGeometry = new THREE.PlaneGeometry(1000, 1000);
+        const galaxyMaterial = new THREE.MeshBasicMaterial({
+            map: galaxyTexture,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.5
+        });
+        const galaxy = new THREE.Mesh(galaxyGeometry, galaxyMaterial);
+        galaxy.rotation.x = Math.PI / 2;
+        scene.add(galaxy);
+
+        // Camera position
+        camera.position.z = 5;
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+            stars.rotation.x += 0.001;
+            stars.rotation.y += 0.001;
+            galaxy.rotation.z += 0.001; // Rotate galaxy to simulate movement
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Resize handling
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+    </script>
+</body>
+</html>

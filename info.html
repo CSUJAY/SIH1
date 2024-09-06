@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFO Page</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars from appearing */
+            background: #000; /* Fallback background color */
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1; /* Ensure the canvas is behind other content */
+        }
+
+        .taskbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between; /* Align items to both sides */
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            box-sizing: border-box; /* Ensure padding does not affect width */
+            z-index: 1;
+        }
+
+        .taskbar .left-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .taskbar .right-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .taskbar .button {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1em;
+            padding: 10px 20px;
+            margin: 0 5px;
+            background: #ff5722;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            display: inline-block; /* Ensure it's treated as a button */
+        }
+
+        .taskbar .button:hover {
+            background: #e64a19;
+        }
+
+        .taskbar .left-section span {
+            font-size: 1.2em;
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 60px); /* Adjust height to account for taskbar */
+            text-align: center;
+            z-index: 1;
+            position: relative;
+            padding: 20px;
+        }
+
+        .info-section h1 {
+            font-size: 2em;
+            margin: 0;
+        }
+
+        .info-section p {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Container for the Three.js canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="left-section">
+            <span>Ryomen</span>
+        </div>
+        <div class="right-section">
+            <a href="index12.html" class="button">Back</a>
+            <a href="#dataset" class="button">Dataset</a>
+        </div>
+    </div>
+
+    <!-- INFO section -->
+    <div class="info-section">
+        <h1>INFO Page</h1>
+        <p>Welcome to the INFO page. Here you can find detailed information about the project and its features.</p>
+    </div>
+
+    <!-- Include Three.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Create a starfield
+        const starGeometry = new THREE.BufferGeometry();
+        const starCount = 10000;
+        const positions = new Float32Array(starCount * 3);
+        for (let i = 0; i < starCount; i++) {
+            positions[i * 3] = Math.random() * 2000 - 1000;
+            positions[i * 3 + 1] = Math.random() * 2000 - 1000;
+            positions[i * 3 + 2] = Math.random() * 2000 - 1000;
+        }
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const starMaterial = new THREE.PointsMaterial({ color: 0x888888 });
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
+
+        // Load galaxy texture
+        const textureLoader = new THREE.TextureLoader();
+        const galaxyTexture = textureLoader.load('https://threejs.org/examples/textures/uv_grid_opengl.jpg');
+
+        // Create a galaxy mesh
+        const galaxyGeometry = new THREE.PlaneGeometry(1000, 1000);
+        const galaxyMaterial = new THREE.MeshBasicMaterial({
+            map: galaxyTexture,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.5
+        });
+        const galaxy = new THREE.Mesh(galaxyGeometry, galaxyMaterial);
+        galaxy.rotation.x = Math.PI / 2;
+        scene.add(galaxy);
+
+        // Camera position
+        camera.position.z = 5;
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+            stars.rotation.x += 0.001;
+            stars.rotation.y += 0.001;
+            galaxy.rotation.z += 0.001; // Rotate galaxy to simulate movement
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Resize handling
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+    </script>
+</body>
+</html>

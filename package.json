@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react-spinner-loader": "^1.1.1",
+    "three": "^0.168.0"
+  }
+}
